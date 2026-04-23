@@ -11,7 +11,13 @@ import SwiftUI
 struct SipWiseApp: App {
     var body: some Scene {
         WindowGroup {
-            AlcoholTrackerView()
+            TabView {
+                AlcoholTrackerView()
+                    .tabItem { Label("Tracker", systemImage: "chart.line.uptrend.xyaxis") }
+                
+                HistoryView()
+                    .tabItem { Label("History", systemImage: "calendar") }
+            }
         }
     }
 }
