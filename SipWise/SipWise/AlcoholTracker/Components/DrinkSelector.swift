@@ -9,14 +9,15 @@ import SwiftUI
 
 struct DrinkSelector: View {
     @Binding var selectedDrink: Drinks
-    @State private var currentDrink: Int
-    @State private var totalVolume: Int
+    @State private var selectedDrinkIndex: Int
+    @Binding private var drinkTotalVolume: Double
     private var drinks: [Drinks]
     
-    public init(selectedDrink: Binding<Drinks>) {
+    public init(selectedDrink: Binding<Drinks>,
+                drinkTotalVolume: Binding<Double>) {
         _selectedDrink = selectedDrink
-        currentDrink = 0
-        totalVolume = 0
+        _drinkTotalVolume = drinkTotalVolume
+        selectedDrinkIndex = 0
         drinks = Drinks.allCases
     }
     
@@ -24,28 +25,27 @@ struct DrinkSelector: View {
         VStack(spacing: 8) {
             HStack {
                 button(imageName: "chevron.left", action: {
-                    currentDrink = (currentDrink - 1 + drinks.count) % drinks.count
-                    selectedDrink = drinks[currentDrink]
+                    selectedDrinkIndex = (selectedDrinkIndex - 1 + drinks.count) % drinks.count
+                    selectedDrink = drinks[selectedDrinkIndex]
                 })
                 Spacer()
-                Image(drinks[currentDrink].asset)
+                Image(drinks[selectedDrinkIndex].asset)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 40, height: 40)
                 Spacer()
                 button(imageName: "chevron.right", action: {
-                    currentDrink = (currentDrink + 1) % drinks.count
-                    selectedDrink = drinks[currentDrink]
+                    selectedDrinkIndex = (selectedDrinkIndex + 1) % drinks.count
+                    selectedDrink = drinks[selectedDrinkIndex]
                 })
             }
             
             HStack {
                 button(imageName: "chevron.left", action: {
-                    totalVolume = max(0, totalVolume - 50)
-                    
+                    drinkTotalVolume = max(0, drinkTotalVolume - 50)
                 })
                 
-                Text("\(totalVolume) ml")
+                Text("\(Int(drinkTotalVolume)) ml")
                     .padding(.vertical, 4)
                     .padding(.horizontal, 8)
                     .overlay(
@@ -54,7 +54,7 @@ struct DrinkSelector: View {
                     )
                 
                 button(imageName: "chevron.right", action: {
-                    totalVolume += 50
+                    drinkTotalVolume += 50
                 })
             }
         }
@@ -72,5 +72,6 @@ struct DrinkSelector: View {
 }
 
 #Preview {
-    DrinkSelector(selectedDrink: .constant(.beer))
+    DrinkSelector(selectedDrink: .constant(.beer),
+                  drinkTotalVolume: .constant(100))
 }

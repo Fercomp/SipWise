@@ -14,9 +14,10 @@ struct AlcoholTrackerView: View {
     var body: some View {
         VStack(spacing: 8) {
             trackerChart()
-            DrinkSelector(selectedDrink: $vm.selectedDrink)
+            DrinkSelector(selectedDrink: $vm.selectedDrink,
+                          drinkTotalVolume: $vm.currentDrinkValue)
             Button("Drink") {
-                vm.addEntry(vm.selectedDrink.gramsOfAlcohol(ml: 100))
+                vm.addEntry()
             }
             Button("Stop") {
                 vm.stopTracking()
@@ -26,11 +27,11 @@ struct AlcoholTrackerView: View {
     
     private func trackerChart() -> some View {
         VStack(alignment: .center) {
-            Text("Álcool no Sangue")
+            Text("Gramas de Álcool no Sangue")
                 .font(.callout).bold()
             
             Chart {
-                ForEach(vm.data) { ponto in
+                ForEach(vm.alcoholEntries) { ponto in
                     LineMark(
                         x: .value("Hora", ponto.date),
                         y: .value("Nível", ponto.level)
@@ -50,7 +51,7 @@ struct AlcoholTrackerView: View {
                     AxisGridLine()
                     if let nivel = value.as(Double.self) {
                         AxisValueLabel {
-                            Text("\(nivel, specifier: "%.1f") g/L")
+                            Text("\(nivel, specifier: "%.1f") g")
                         }
                     }
                 }

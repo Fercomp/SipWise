@@ -11,38 +11,55 @@ import SwiftUI
 
 @MainActor
 class AlcoholTrackerViewModel: ObservableObject {
+    /// Currently selected drink type
     @Published var selectedDrink: Drinks = .beer
-    @Published var currentDrinkAmount: Int = 0
+    // UI color representing current alcohol level/risk
     @Published var chartColor: Color = .green
-    @Published var data: [AlcoholEntry] = []
-    private let eliminationPerSecond: Double = 0.15 / 36//00.0
-    private var timer: AnyCancellable?
+    // Logged alcohol entries over time
+    @Published var alcoholEntries: [AlcoholEntry] = []
+    // Current drink volume in ml being added
+    @Published var currentDrinkValue: Double = 0
+    // Reference grams level for moderate/high consumption
+    public let threshold = 35
+    // Average alcohol elimination rate (~8 g/hour ≈ 0.0022 g/second)
+    private let eliminationPerSecond: Double = 0.0022
+    // Time interval (in seconds) between updates
     private var timeSpace = 0.1
-    let threshold = 0.8
+    private var timer: AnyCancellable?
     
     init() {}
     
+    private func getGramsOfAlcohol(addedByUser: Bool) -> Double {
+        if !addedByUser {
+            return 0.0
+        }
+        return selectedDrink.gramsOfAlcohol(ml: currentDrinkValue)
+    }
     
-    func addEntry(_ gramsOfAlcohol: Double, addedByUser: Bool = true) {
-        let lastGrams = data.last?.level ?? 0.0
+    func addEntry(addedByUser: Bool = true) {
+        let gramsOfAlcohol = getGramsOfAlcohol(addedByUser: addedByUser)
+        let lastGrams = alcoholEntries.last?.level ?? 0.0
         let newTotalOfAcohol = gramsOfAlcohol + lastGrams - eliminationPerSecond * timeSpace
         guard newTotalOfAcohol > 0 else { return }
         setChartColor(newTotalOfAcohol)
-        data.append(AlcoholEntry(level: gramsOfAlcohol + lastGrams - eliminationPerSecond * timeSpace,
+        alcoholEntries.append(AlcoholEntry(level: gramsOfAlcohol + lastGrams - eliminationPerSecond * timeSpace,
                                  date: Date(),
                                  addedByUser: addedByUser))
-        if data.count == 1 {
+        if alcoholEntries.count == 1 {
             startTracking()
         }
     }
     
     private func setChartColor(_ totalOfAlcohol: Double) {
-        if totalOfAlcohol < 0.4 {
+        switch totalOfAlcohol {
+        case 0..<20:
             chartColor = .green
-        } else if totalOfAlcohol > 0.8 {
-            chartColor = .red
-        } else {
+        case 20..<40:
+            chartColor = .yellow
+        case 40..<60:
             chartColor = .orange
+        default:
+            chartColor = .red
         }
     }
     
@@ -52,28 +69,28 @@ class AlcoholTrackerViewModel: ObservableObject {
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else { return }
-                self.addEntry(0, addedByUser: false)
-                if self.data.count > 150 {
+                self.addEntry(addedByUser: false)
+                if self.alcoholEntries.count > 150 {
                     self.upShiftGranularity()
                 }
             }
     }
     
-    @MainActor
     private func upShiftGranularity() {
         var newData: [AlcoholEntry] = []
-        for (index, entry) in data.enumerated() {
+        for (index, entry) in alcoholEntries.enumerated() {
             if index % 3 == 0 || entry.addedByUser {
                 newData.append(entry)
             }
         }
         
-        self.data = newData
+        self.alcoholEntries = newData
         startTracking()
     }
     
     func stopTracking() {
         timer?.cancel()
         timer = nil
+        alcoholEntries = []
     }
 }
