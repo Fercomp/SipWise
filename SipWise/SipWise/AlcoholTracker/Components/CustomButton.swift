@@ -39,7 +39,7 @@ struct CustomButton: View {
         .frame(maxWidth: .infinity)
         .padding(8)
         .background(isDisabled ? .gray.opacity(0.3) : color ?? .clear)
-        .clipShape(.buttonBorder)
+        .cornerRadius(4)
         .shadow(color: .black.opacity(0.2), radius: 4, x: 3, y: 3)
         .disabled(isDisabled)
     }

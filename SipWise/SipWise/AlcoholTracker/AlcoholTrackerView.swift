@@ -12,7 +12,7 @@ struct AlcoholTrackerView: View {
     @StateObject var vm = AlcoholTrackerViewModel()
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack {
             DrinkCounter(counter: $vm.drinkCounter)
                 .padding(.horizontal)
             
@@ -21,6 +21,8 @@ struct AlcoholTrackerView: View {
             Group {
                 DrinkSelector(selectedDrink: $vm.selectedDrink,
                               drinkTotalVolume: $vm.currentDrinkValue)
+                
+                VolumeSliderView(volumeSelected: $vm.currentDrinkValue)
                 
                 CustomButton(color: .cyan, icon: "plus", text: "Drink") {
                     vm.addEntry()

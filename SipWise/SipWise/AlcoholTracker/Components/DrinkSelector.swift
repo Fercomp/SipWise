@@ -10,13 +10,11 @@ import SwiftUI
 struct DrinkSelector: View {
     @Binding var selectedDrink: Drinks
     @State private var selectedDrinkIndex: Int
-    @Binding private var drinkTotalVolume: Double
     private var drinks: [Drinks]
     
     public init(selectedDrink: Binding<Drinks>,
                 drinkTotalVolume: Binding<Double>) {
         _selectedDrink = selectedDrink
-        _drinkTotalVolume = drinkTotalVolume
         selectedDrinkIndex = 0
         drinks = Drinks.allCases
     }
@@ -37,24 +35,6 @@ struct DrinkSelector: View {
                 button(imageName: "chevron.right", action: {
                     selectedDrinkIndex = (selectedDrinkIndex + 1) % drinks.count
                     selectedDrink = drinks[selectedDrinkIndex]
-                })
-            }
-            
-            HStack {
-                button(imageName: "chevron.left", action: {
-                    drinkTotalVolume = max(0, drinkTotalVolume - 50)
-                })
-                
-                Text("\(Int(drinkTotalVolume)) ml")
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 99)
-                            .stroke(lineWidth: 2)
-                    )
-                
-                button(imageName: "chevron.right", action: {
-                    drinkTotalVolume += 50
                 })
             }
         }
