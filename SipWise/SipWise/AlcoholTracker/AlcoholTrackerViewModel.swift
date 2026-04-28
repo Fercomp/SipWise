@@ -21,6 +21,8 @@ class AlcoholTrackerViewModel: ObservableObject {
     @Published var currentDrinkValue: Double = 0
     /// Tracker drinks total amount
     @Published var drinkCounter: [Drinks: Double] = [:]
+    /// Flag to know if user is currently drinking
+    public var isDrinking: Bool  { alcoholEntries.isEmpty }
     /// Reference grams level for moderate/high consumption
     public let threshold = 35
     /// Average alcohol elimination rate (~8 g/hour ≈ 0.0022 g/second)
@@ -104,5 +106,6 @@ class AlcoholTrackerViewModel: ObservableObject {
         timer?.cancel()
         timer = nil
         alcoholEntries = []
+        drinkCounter = [:]
     }
 }

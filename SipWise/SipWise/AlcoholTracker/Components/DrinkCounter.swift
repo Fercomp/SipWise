@@ -20,6 +20,8 @@ struct DrinkCounter: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: 40)
     }
 }
 

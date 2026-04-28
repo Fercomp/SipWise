@@ -13,20 +13,24 @@ struct AlcoholTrackerView: View {
     
     var body: some View {
         VStack(spacing: 8) {
-            HStack {
-                DrinkCounter(counter: $vm.drinkCounter)
-                    .padding()
-                Spacer()
-            }
+            DrinkCounter(counter: $vm.drinkCounter)
+                .padding(.horizontal)
+            
             trackerChart()
-            DrinkSelector(selectedDrink: $vm.selectedDrink,
-                          drinkTotalVolume: $vm.currentDrinkValue)
-            Button("Drink") {
-                vm.addEntry()
+            
+            Group {
+                DrinkSelector(selectedDrink: $vm.selectedDrink,
+                              drinkTotalVolume: $vm.currentDrinkValue)
+                
+                CustomButton(color: .cyan, icon: "plus", text: "Drink") {
+                    vm.addEntry()
+                }
+                
+                CustomButton(isDisabled: vm.isDrinking, color: .red, icon: "xmark.circle", text: "Stop") {
+                    vm.stopTracking()
+                }
             }
-            Button("Stop") {
-                vm.stopTracking()
-            }
+            .padding(.horizontal)
         }
     }
     
