@@ -13,18 +13,20 @@ import SwiftUI
 class AlcoholTrackerViewModel: ObservableObject {
     /// Currently selected drink type
     @Published var selectedDrink: Drinks = .beer
-    // UI color representing current alcohol level/risk
+    /// UI color representing current alcohol level/risk
     @Published var chartColor: Color = .green
-    // Logged alcohol entries over time
+    /// Logged alcohol entries over time
     @Published var alcoholEntries: [AlcoholEntry] = []
-    // Current drink volume in ml being added
+    /// Current drink volume in ml being added
     @Published var currentDrinkValue: Double = 0
-    // Reference grams level for moderate/high consumption
+    /// Tracker drinks total amount
+    @Published var drinkCounter: [Drinks: Double] = [:]
+    /// Reference grams level for moderate/high consumption
     public let threshold = 35
-    // Average alcohol elimination rate (~8 g/hour ≈ 0.0022 g/second)
+    /// Average alcohol elimination rate (~8 g/hour ≈ 0.0022 g/second)
     private let eliminationPerSecond: Double = 0.0022
-    // Time interval (in seconds) between updates
-    private var timeSpace = 0.1
+    /// Time interval (in seconds) between updates
+    private var timeSpace = 1.0
     private var timer: AnyCancellable?
     
     init() {}
@@ -42,6 +44,7 @@ class AlcoholTrackerViewModel: ObservableObject {
         let newTotalOfAcohol = gramsOfAlcohol + lastGrams - eliminationPerSecond * timeSpace
         guard newTotalOfAcohol > 0 else { return }
         setChartColor(newTotalOfAcohol)
+        updateDrinkCounter(currentDrinkValue, drink: selectedDrink, addedByUser: addedByUser)
         alcoholEntries.append(AlcoholEntry(level: gramsOfAlcohol + lastGrams - eliminationPerSecond * timeSpace,
                                  date: Date(),
                                  addedByUser: addedByUser))
@@ -60,6 +63,15 @@ class AlcoholTrackerViewModel: ObservableObject {
             chartColor = .orange
         default:
             chartColor = .red
+        }
+    }
+    
+    private func updateDrinkCounter(_ totalOfAlcohol: Double, drink: Drinks, addedByUser: Bool) {
+        if !addedByUser { return }
+        if let currentAmount = drinkCounter[drink] {
+            drinkCounter[drink] = currentAmount + totalOfAlcohol
+        } else {
+            drinkCounter[drink] = totalOfAlcohol
         }
     }
     

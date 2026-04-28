@@ -13,6 +13,11 @@ struct AlcoholTrackerView: View {
     
     var body: some View {
         VStack(spacing: 8) {
+            HStack {
+                DrinkCounter(counter: $vm.drinkCounter)
+                    .padding()
+                Spacer()
+            }
             trackerChart()
             DrinkSelector(selectedDrink: $vm.selectedDrink,
                           drinkTotalVolume: $vm.currentDrinkValue)
