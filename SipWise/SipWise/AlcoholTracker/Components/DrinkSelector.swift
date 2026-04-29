@@ -8,50 +8,53 @@
 import SwiftUI
 
 struct DrinkSelector: View {
+    @State private var alcohol: Double = 5.0
     @Binding var selectedDrink: Drinks
-    @State private var selectedDrinkIndex: Int
-    private var drinks: [Drinks]
-    
-    public init(selectedDrink: Binding<Drinks>,
-                drinkTotalVolume: Binding<Double>) {
-        _selectedDrink = selectedDrink
-        selectedDrinkIndex = 0
-        drinks = Drinks.allCases
-    }
     
     var body: some View {
-        VStack(spacing: 8) {
-            HStack {
-                button(imageName: "chevron.left", action: {
-                    selectedDrinkIndex = (selectedDrinkIndex - 1 + drinks.count) % drinks.count
-                    selectedDrink = drinks[selectedDrinkIndex]
-                })
-                Spacer()
-                Image(drinks[selectedDrinkIndex].asset)
+        HStack(spacing: 16) {
+            HStack(spacing: 2) {
+                Image(selectedDrink.asset)
                     .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                Spacer()
-                button(imageName: "chevron.right", action: {
-                    selectedDrinkIndex = (selectedDrinkIndex + 1) % drinks.count
-                    selectedDrink = drinks[selectedDrinkIndex]
-                })
+                    .frame(width: 25, height: 25)
+                
+                Picker("Bebida", selection: $selectedDrink) {
+                    ForEach(Drinks.allCases, id: \.self) { drink in
+                        Text(drink.asset)
+                            .tag(drink)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(.blue)
             }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color(UIColor.systemBackground))
+            .cornerRadius(4)
+            .overlay(
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(Color(UIColor.systemGray4), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.08), radius: 5, x: 0, y: 4)
+            
+            Spacer()
+            
+            Text(String(format: "%.1f %%", alcohol))
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundColor(.cyan)
+            
+            Stepper("", value: $alcohol, in: 0...100, step: 1)
+                .labelsHidden()
         }
-        .fixedSize()
-    }
-    
-    private func button(imageName: String, action: @escaping () -> ()) -> some View {
-        Button(action: {
-            action()
-        }, label: {
-            Image(systemName: imageName)
-                .foregroundStyle(.black)
-        })
+        .padding(24)
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+                .shadow(color: .black.opacity(0.08), radius: 5, x: 0, y: 4)
+        )
     }
 }
 
 #Preview {
-    DrinkSelector(selectedDrink: .constant(.beer),
-                  drinkTotalVolume: .constant(100))
+    DrinkSelector(selectedDrink: .constant(.beer))
 }

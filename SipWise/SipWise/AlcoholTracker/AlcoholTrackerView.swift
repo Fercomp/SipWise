@@ -19,8 +19,7 @@ struct AlcoholTrackerView: View {
             trackerChart()
             
             Group {
-                DrinkSelector(selectedDrink: $vm.selectedDrink,
-                              drinkTotalVolume: $vm.currentDrinkValue)
+                DrinkSelector(selectedDrink: $vm.selectedDrink)
                 
                 VolumeSliderView(volumeSelected: $vm.currentDrinkValue)
                 
