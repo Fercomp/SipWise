@@ -7,21 +7,6 @@
 
 import SwiftUI
 
-struct HistoryModel {
-    let totalGramsOfAlcohol: Double
-    let day: Date
-    var consumption: ConsumptionLevel {
-        switch totalGramsOfAlcohol {
-        case 1...12:
-            return .low
-        case 13...36:
-            return .moderate
-        default:
-            return .high
-        }
-    }
-}
-
 let mockHistory: [HistoryModel] = [
     HistoryModel(totalGramsOfAlcohol: 6, day: Date().addingTimeInterval(-86400 * 6)),
     HistoryModel(totalGramsOfAlcohol: 12, day: Date().addingTimeInterval(-86400 * 5)),

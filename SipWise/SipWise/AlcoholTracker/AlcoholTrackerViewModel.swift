@@ -19,10 +19,14 @@ class AlcoholTrackerViewModel: ObservableObject {
     @Published var alcoholEntries: [AlcoholEntry] = []
     /// Current drink volume in ml being added
     @Published var currentDrinkValue: Double = 0
+    /// Current drink alcohol percentage
+    @Published var currentAlcoholPercentage: Double = 0
     /// Tracker drinks total amount
     @Published var drinkCounter: [Drinks: Double] = [:]
+    /// Tracker grams of alcohol ingested
+    @Published var totalAmoutIngested: Double = 0.0
     /// Flag to know if user is currently drinking
-    public var isDrinking: Bool  { alcoholEntries.isEmpty }
+    public var isDrinking: Bool  { !alcoholEntries.isEmpty }
     /// Reference grams level for moderate/high consumption
     public let threshold = 35
     /// Average alcohol elimination rate (~8 g/hour ≈ 0.0022 g/second)
@@ -37,11 +41,12 @@ class AlcoholTrackerViewModel: ObservableObject {
         if !addedByUser {
             return 0.0
         }
-        return selectedDrink.gramsOfAlcohol(ml: currentDrinkValue)
+        return selectedDrink.gramsOfAlcohol(ml: currentDrinkValue, percentage: currentAlcoholPercentage)
     }
     
     func addEntry(addedByUser: Bool = true) {
         let gramsOfAlcohol = getGramsOfAlcohol(addedByUser: addedByUser)
+        totalAmoutIngested += gramsOfAlcohol
         let lastGrams = alcoholEntries.last?.level ?? 0.0
         let newTotalOfAcohol = gramsOfAlcohol + lastGrams - eliminationPerSecond * timeSpace
         guard newTotalOfAcohol > 0 else { return }

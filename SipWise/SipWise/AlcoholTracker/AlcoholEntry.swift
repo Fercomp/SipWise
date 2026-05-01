@@ -16,15 +16,6 @@ struct AlcoholEntry: Identifiable {
 
 enum Drinks: CaseIterable {
     case beer, shot
-    
-    private var alcoholPercentage: Double {
-        switch self {
-        case .beer:
-            return 0.05
-        case .shot:
-            return 0.40
-        }
-    }
        
     var asset: String {
        switch self {
@@ -34,9 +25,18 @@ enum Drinks: CaseIterable {
            return "shot"
        }
     }
+    
+    var defaultPercentage: Double {
+        switch self {
+        case .beer:
+            return 4.0
+        case .shot:
+            return 15.0
+        }
+    }
 
-    func gramsOfAlcohol(ml: Double) -> Double {
-       let pureAlcoholMl = ml * alcoholPercentage
+    func gramsOfAlcohol(ml: Double, percentage: Double) -> Double {
+       let pureAlcoholMl = ml * (percentage / 100)
        return pureAlcoholMl * 0.789
     }
 }

@@ -12,14 +12,14 @@ struct AlcoholTrackerView: View {
     @StateObject var vm = AlcoholTrackerViewModel()
     
     var body: some View {
-        VStack {
-            DrinkCounter(counter: $vm.drinkCounter)
-                .padding(.horizontal)
+        ScrollView(showsIndicators: false) {
+            header()
             
             trackerChart()
             
             Group {
-                DrinkSelector(selectedDrink: $vm.selectedDrink)
+                DrinkSelector(alcoholPercentage: $vm.currentAlcoholPercentage,
+                              selectedDrink: $vm.selectedDrink)
                 
                 VolumeSliderView(volumeSelected: $vm.currentDrinkValue)
                 
@@ -27,7 +27,7 @@ struct AlcoholTrackerView: View {
                     vm.addEntry()
                 }
                 
-                CustomButton(isDisabled: vm.isDrinking, color: .red, icon: "xmark.circle", text: "Stop") {
+                CustomButton(isDisabled: !vm.isDrinking, color: .red, icon: "xmark.circle", text: "Stop") {
                     vm.stopTracking()
                 }
             }
@@ -35,10 +35,24 @@ struct AlcoholTrackerView: View {
         }
     }
     
+    @ViewBuilder
+    private func header() -> some View {
+        if vm.isDrinking {
+            DrinkCounter(counter: vm.drinkCounter,
+                         totalGrams: vm.totalAmoutIngested)
+                .padding(.horizontal)
+        } else {
+            Rectangle()
+                .foregroundStyle(.clear)
+                .frame(height: 40)
+        }
+    }
+    
     private func trackerChart() -> some View {
         VStack(alignment: .center) {
-            Text("Gramas de Álcool no Sangue")
-                .font(.callout).bold()
+            Text("Grams of Alcool in the Blood")
+                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .foregroundColor(.cyan)
             
             Chart {
                 ForEach(vm.alcoholEntries) { ponto in

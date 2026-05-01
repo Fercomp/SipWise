@@ -17,13 +17,19 @@ struct VolumeSliderView: View {
                     .foregroundColor(.cyan)
             }
             
-            Slider(value: $volumeSelected, in: 0...1000, step: 10) {
+            Slider(
+                value: Binding(
+                    get: { volumeSelected },
+                    set: { newValue in
+                        volumeSelected = round(newValue / 10) * 10
+                    }
+                ),
+                in: 0...1000
+            ) {
                 EmptyView()
-                
             } minimumValueLabel: {
                 Image(systemName: "drop")
                     .foregroundColor(.cyan.opacity(0.5))
-                
             } maximumValueLabel: {
                 Image(systemName: "drop.fill")
                     .foregroundColor(.cyan)
@@ -31,14 +37,11 @@ struct VolumeSliderView: View {
             .tint(.cyan)
         }
         .padding(24)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(UIColor.secondarySystemGroupedBackground))
-                .shadow(color: .black.opacity(0.08), radius: 5, x: 0, y: 4)
-        )
+        .shadowSP()
     }
 }
 
 #Preview {
-    VolumeSliderView(volumeSelected: .constant(100))
+    @Previewable @State var volumeSelected: Double = 100.0
+    VolumeSliderView(volumeSelected: $volumeSelected)
 }

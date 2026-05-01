@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DrinkSelector: View {
-    @State private var alcohol: Double = 5.0
+    @Binding var alcoholPercentage: Double
     @Binding var selectedDrink: Drinks
     
     var body: some View {
@@ -25,36 +25,32 @@ struct DrinkSelector: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .tint(.blue)
+                .fixedSize()
+                .tint(.cyan)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(Color(UIColor.systemBackground))
             .cornerRadius(4)
-            .overlay(
-                RoundedRectangle(cornerRadius: 4)
-                    .stroke(Color(UIColor.systemGray4), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.08), radius: 5, x: 0, y: 4)
+            .shadowSP()
             
             Spacer()
             
-            Text(String(format: "%.1f %%", alcohol))
+            Text(String(format: "%.1f %%", alcoholPercentage))
                 .font(.system(size: 16, weight: .bold, design: .rounded))
                 .foregroundColor(.cyan)
             
-            Stepper("", value: $alcohol, in: 0...100, step: 1)
+            Stepper("", value: $alcoholPercentage, in: 0...100, step: 1)
                 .labelsHidden()
         }
         .padding(24)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(UIColor.secondarySystemGroupedBackground))
-                .shadow(color: .black.opacity(0.08), radius: 5, x: 0, y: 4)
-        )
+        .shadowSP()
+        .onChange(of: selectedDrink) {
+            alcoholPercentage = selectedDrink.defaultPercentage
+        }
     }
 }
 
 #Preview {
-    DrinkSelector(selectedDrink: .constant(.beer))
+    DrinkSelector(alcoholPercentage: .constant(5), selectedDrink: .constant(.beer))
 }
