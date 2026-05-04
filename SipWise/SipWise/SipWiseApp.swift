@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct SipWiseApp: App {
@@ -19,5 +20,6 @@ struct SipWiseApp: App {
                     .tabItem { Label("History", systemImage: "calendar") }
             }
         }
+        .modelContainer(for: HistoryModel.self)
     }
 }

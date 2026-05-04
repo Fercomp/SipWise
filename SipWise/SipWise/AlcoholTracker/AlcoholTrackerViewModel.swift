@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import SwiftData
 
 @MainActor
 class AlcoholTrackerViewModel: ObservableObject {
@@ -34,8 +35,6 @@ class AlcoholTrackerViewModel: ObservableObject {
     /// Time interval (in seconds) between updates
     private var timeSpace = 1.0
     private var timer: AnyCancellable?
-    
-    init() {}
     
     private func getGramsOfAlcohol(addedByUser: Bool) -> Double {
         if !addedByUser {
@@ -107,10 +106,23 @@ class AlcoholTrackerViewModel: ObservableObject {
         startTracking()
     }
     
-    func stopTracking() {
+    func stopTracking(context: ModelContext) {
+        saveData(context: context)
         timer?.cancel()
         timer = nil
         alcoholEntries = []
         drinkCounter = [:]
+        totalAmoutIngested = 0.0
+    }
+    
+    private func saveData(context: ModelContext) {
+        let history = HistoryModel(totalGramsOfAlcohol: totalAmoutIngested, day: Date())
+        context.insert(history)
+          
+        do {
+            try context.save()
+        } catch {
+            print("Failed to save: \(error)")
+        }
     }
 }

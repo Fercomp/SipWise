@@ -24,20 +24,11 @@ struct HistoryCardView: View {
             Spacer()
             
             Text("\(Int(model.totalGramsOfAlcohol)) g")
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(.system(size: 24, weight: .bold, design: .rounded))
                 .foregroundStyle(model.consumption.color)
         }
         .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(.background)
-                .shadow(radius: 2)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 4)
-                .stroke(model.consumption.color.opacity(0.3), lineWidth: 1)
-        )
+        .shadowSP()
     }
     
     private var formattedDate: String {

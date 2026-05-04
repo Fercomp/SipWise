@@ -9,6 +9,7 @@ import SwiftUI
 import Charts
 
 struct AlcoholTrackerView: View {
+    @Environment(\.modelContext) private var context
     @StateObject var vm = AlcoholTrackerViewModel()
     
     var body: some View {
@@ -28,7 +29,7 @@ struct AlcoholTrackerView: View {
                 }
                 
                 CustomButton(isDisabled: !vm.isDrinking, color: .red, icon: "xmark.circle", text: "Stop") {
-                    vm.stopTracking()
+                    vm.stopTracking(context: context)
                 }
             }
             .padding(.horizontal)
