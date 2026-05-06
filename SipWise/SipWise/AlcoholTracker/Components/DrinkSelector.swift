@@ -45,7 +45,7 @@ struct DrinkSelector: View {
         }
         .padding(24)
         .shadowSP()
-        .onChange(of: selectedDrink) {
+        .task(id: selectedDrink) {
             alcoholPercentage = selectedDrink.defaultPercentage
         }
     }

@@ -20,6 +20,6 @@ struct SipWiseApp: App {
                     .tabItem { Label("History", systemImage: "calendar") }
             }
         }
-        .modelContainer(for: HistoryModel.self)
+        .modelContainer(for: [HistoryModel.self, SessionSnapshot.self])
     }
 }

@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct AlcoholEntry: Identifiable {
-    let id = UUID()
+struct AlcoholEntry: Identifiable, Codable {
+    var id = UUID()
     let level: Double
     let date: Date
     var addedByUser: Bool = true
 }
 
-enum Drinks: CaseIterable {
+enum Drinks: CaseIterable, Codable {
     case beer, shot
        
     var asset: String {

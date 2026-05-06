@@ -19,7 +19,7 @@ class AlcoholTrackerViewModel: ObservableObject {
     /// Logged alcohol entries over time
     @Published var alcoholEntries: [AlcoholEntry] = []
     /// Current drink volume in ml being added
-    @Published var currentDrinkValue: Double = 0
+    @Published var currentDrinkValue: Double = 300.0
     /// Current drink alcohol percentage
     @Published var currentAlcoholPercentage: Double = 0
     /// Tracker drinks total amount
@@ -31,7 +31,7 @@ class AlcoholTrackerViewModel: ObservableObject {
     /// Reference grams level for moderate/high consumption
     public let threshold = 35
     /// Average alcohol elimination rate (~8 g/hour ≈ 0.0022 g/second)
-    private let eliminationPerSecond: Double = 0.0022
+    private let eliminationPerSecond: Double = 0.022
     /// Time interval (in seconds) between updates
     private var timeSpace = 1.0
     private var timer: AnyCancellable?
@@ -108,6 +108,7 @@ class AlcoholTrackerViewModel: ObservableObject {
     
     func stopTracking(context: ModelContext) {
         saveData(context: context)
+        deleteAllSnapshots(context: context)
         timer?.cancel()
         timer = nil
         alcoholEntries = []
@@ -123,6 +124,69 @@ class AlcoholTrackerViewModel: ObservableObject {
             try context.save()
         } catch {
             print("Failed to save: \(error)")
+        }
+    }
+        
+    func saveSnapshot(context: ModelContext) {
+        timer?.cancel()
+        timer = nil
+        deleteAllSnapshots(context: context)
+        
+        let snapshot = SessionSnapshot(dateSaved: Date(), alcoholEntries: alcoholEntries, drinkCounter: drinkCounter, totalAmoutIngested: totalAmoutIngested)
+        context.insert(snapshot)
+        
+        do {
+            try context.save()
+        } catch {
+            print("Erro ao salvar snapshot: \(error)")
+        }
+    }
+        
+    func restoreSnapshot(context: ModelContext) {
+        let descriptor = FetchDescriptor<SessionSnapshot>()
+        
+        guard let snapshots = try? context.fetch(descriptor),
+              let snapshot = snapshots.first else {
+            if !alcoholEntries.isEmpty && timer == nil { startTracking() }
+            return
+        }
+        
+        self.drinkCounter = snapshot.drinkCounter
+        self.totalAmoutIngested = snapshot.totalAmoutIngested
+        self.alcoholEntries = snapshot.alcoholEntries
+        
+        let timeElapsedInSeconds = Date().timeIntervalSince(snapshot.dateSaved)
+        
+        if let lastEntry = alcoholEntries.last {
+            let totalEliminated = timeElapsedInSeconds * eliminationPerSecond
+            let currentLevel = max(0, lastEntry.level - totalEliminated) // Não deixa ficar < 0
+            
+            let newEntry = AlcoholEntry(level: currentLevel, date: Date(), addedByUser: false)
+            self.alcoholEntries.append(newEntry)
+            self.setChartColor(currentLevel)
+        }
+        
+        context.delete(snapshot)
+        do {
+            try context.save()
+        } catch {
+            print("Erro ao deletar snapshot: \(error)")
+        }
+        
+        startTracking()
+    }
+    
+    private func deleteAllSnapshots(context: ModelContext) {
+        let descriptor = FetchDescriptor<SessionSnapshot>()
+        
+        do {
+            let existingSnapshots = try context.fetch(descriptor)
+            for snapshot in existingSnapshots {
+                context.delete(snapshot)
+            }
+            try context.save()
+        } catch {
+            print("Erro ao deletar os snapshots: \(error)")
         }
     }
 }

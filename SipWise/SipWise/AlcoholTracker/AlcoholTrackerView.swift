@@ -10,6 +10,7 @@ import Charts
 
 struct AlcoholTrackerView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) var scenePhase
     @StateObject var vm = AlcoholTrackerViewModel()
     
     var body: some View {
@@ -33,6 +34,20 @@ struct AlcoholTrackerView: View {
                 }
             }
             .padding(.horizontal)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .background:
+                vm.saveSnapshot(context: context)
+                break
+            case .active:
+                vm.restoreSnapshot(context: context)
+                break
+            case .inactive:
+                break
+            @unknown default:
+                break
+            }
         }
     }
     
